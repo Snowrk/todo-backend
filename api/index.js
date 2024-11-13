@@ -163,33 +163,41 @@ app.post("/users/", async (request, response) => {
 });
 
 app.post("/login/", async (request, response) => {
-  const { email, password } = request.body;
-  console.log(email, password);
-  const selectUserQuery = `SELECT * FROM user WHERE email = '${email}'`;
-  const dbUser = await db.get(selectUserQuery);
-  if (dbUser === undefined) {
-    response.status(400);
-    response.send({ err: "Invalid User" });
-  } else {
-    const isPasswordMatched = await bcrypt.compare(password, dbUser.password);
-    if (isPasswordMatched === true) {
-      const payload = {
-        email: email,
-      };
-      const jwtToken = jwt.sign(payload, "MY_SECRET_TOKEN");
-      response.send({ jwtToken, dbUser });
-    } else {
+  try {
+    const { email, password } = request.body;
+    console.log(email, password);
+    const selectUserQuery = `SELECT * FROM user WHERE email = '${email}'`;
+    const dbUser = await db.get(selectUserQuery);
+    if (dbUser === undefined) {
       response.status(400);
-      response.send({ err: "Invalid Password" });
+      response.send({ err: "Invalid User" });
+    } else {
+      const isPasswordMatched = await bcrypt.compare(password, dbUser.password);
+      if (isPasswordMatched === true) {
+        const payload = {
+          email: email,
+        };
+        const jwtToken = jwt.sign(payload, "MY_SECRET_TOKEN");
+        response.send({ jwtToken, dbUser });
+      } else {
+        response.status(400);
+        response.send({ err: "Invalid Password" });
+      }
     }
+  } catch (e) {
+    console.log(e);
   }
 });
 
 app.get("/profile/:userId", authenticateToken, async (request, response) => {
-  let { userId } = request.params;
-  const selectUserQuery = `SELECT * FROM user WHERE userId = '${userId}'`;
-  const userDetails = await db.get(selectUserQuery);
-  response.send(userDetails);
+  try {
+    let { userId } = request.params;
+    const selectUserQuery = `SELECT * FROM user WHERE userId = '${userId}'`;
+    const userDetails = await db.get(selectUserQuery);
+    response.send(userDetails);
+  } catch (e) {
+    console.log(e);
+  }
 });
 
 app.put("/users/:userId/", bodyAugGen, checker, async (request, response) => {
