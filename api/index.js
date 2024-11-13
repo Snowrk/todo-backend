@@ -309,4 +309,12 @@ app.delete("/todos/:todoId/", async (request, response) => {
   }
 });
 
+db.close((err) => {
+  if (err) {
+    console.error("Error closing database:", err.message);
+  } else {
+    console.log("Database closed successfully");
+  }
+});
+
 module.exports = app;
