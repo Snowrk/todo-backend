@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(cors());
 
 let db = null;
-const dbPath = path.join(__dirname, "mydb.db");
+const dbPath = path.resolve(__dirname, "mydb.db");
 const port = 3000;
 
 const initializeDBAndServer = async () => {
